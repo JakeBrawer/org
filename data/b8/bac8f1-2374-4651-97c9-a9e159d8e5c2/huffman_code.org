@@ -1,0 +1,206 @@
+#+OPTIONS: ':nil *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline author:t c:nil
+#+OPTIONS: creator:nil d:(not "LOGBOOK") date:t e:t email:nil f:t inline:t
+#+OPTIONS: num:t p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t timestamp:t
+#+OPTIONS: title:t toc:t todo:t |:t
+#+TITLE: huffman_code
+#+DATE: <2015-12-27 Sun>
+#+AUTHOR: Jake Brawer
+#+EMAIL: jake@test-arch
+#+LANGUAGE: en
+#+EXCLUDE_TAGS: noexport
+#+CREATOR: Emacs 24.5.1 (Org mode 8.3.2)
+ 
+#+BEGIN_SRC C :flags -Wall -g
+
+  int main(int argc, char *argv[])
+  {
+    int i;
+    for(i = 0; i < 5; i++) {  
+      puts("Hello, world.");
+    }
+      return 0;
+  }
+#+END_SRC
+
+#+RESULTS:
+| Hello | world. |
+| Hello | world. |
+| Hello | world. |
+| Hello | world. |
+| Hello | world. |
+
+#+header: :cmdline valgrind :flags -Wall -g
+#+BEGIN_SRC C 
+
+  #include<stdio.h>
+  int main()
+  {
+      int age;
+      int height = 72;
+
+      printf("I am %d years old.\n", age);
+      printf("I am %d inches tall.\n", height);
+
+      return 0;
+  }
+#+END_SRC
+
+#+RESULTS:
+| I | am |  0 | years  | old.  |
+| I | am | 72 | inches | tall. |
+
+#+BEGIN_SRC C
+  #include <stdio.h>
+
+  int main(int argc, char *argv[])
+  {
+      int bugs = 100;
+      double bug_rate = 1.2;
+
+      printf("You have %d bugs at the imaginary rate of %f.\n",
+              bugs, bug_rate);
+
+      long universe_of_defects = 1L * 1024L * 1024L * 1024L;
+      printf("The entire universe has %ld bugs.\n",
+              universe_of_defects);
+
+      double expected_bugs = bugs * bug_rate;
+      printf("You are expected to have %f bugs.\n",
+              expected_bugs);
+
+      double part_of_universe = expected_bugs / universe_of_defects;
+      printf("That is only a %e portion of the universe.\n",
+              part_of_universe);
+
+      // this makes no sense, just a demo of something weird
+      char nul_byte = '\0';
+      int care_percentage = bugs * nul_byte;
+      printf("Which means you should care %d%%.\n",
+              care_percentage);
+
+      return 0;
+  }
+
+#+END_SRC
+
+#+RESULTS:
+| You   | have   | 100      | bugs   | at           | the     | imaginary | rate | of        | 1.200000. |
+| The   | entire | universe | has    | 1073741824   | bugs.   |           |      |           |           |
+| You   | are    | expected | to     | have         | 120.0   | bugs.     |      |           |           |
+| That  | is     | only     | a      | 1.117587e-07 | portion | of        | the  | universe. |           |
+| Which | means  | you      | should | care         | 0%.     |           |      |           |           |
+
+#+header: :main no includes: i am cool
+#+BEGIN_SRC C :main no :cmdline How are you hw ada dad dad
+
+#include <stdio.h>
+
+  int main(int argc, char *argv[])
+  {
+      int i = 0;
+
+      // go through each string in argv
+      // why am I skipping argv[0]?
+      for(i = 1; i < argc; i++) {
+          printf("arg %d: %s\n", i, argv[i]);
+      }
+
+      // let's make our own array of strings
+      char *states[] = {
+          "California", "Oregon",
+          "Washington", "Texas"
+      };
+      int num_states = 4;
+
+      for(i = 0; i < num_states; i++) {
+          printf("state %d: %s\n", i, states[i]);
+      }
+
+      return 0;
+  }
+
+#+END_SRC
+
+
+#+NAME: HuffNode
+#+BEGIN_SRC C :noweb yes
+#include<stdio.h>
+
+struct huffnode
+  {
+    int freq;
+    int val;
+    struct huffnode *left;
+    struct huffnode *right;
+  };
+
+#+END_SRC
+
+#+RESULTS: HuffNode
+
+
+#+NAME: MakeLowestSubTree
+#+BEGIN_SRC C :noweb yes
+  <<HuffNode>>
+  void MakeLowestSubTree(struct huffnode **left, struct huffnode **right, struct huffnode **leaf){
+    int freqTotal = (*left)->freq + (*right)->freq;
+    if(*leaf == 0){
+      *leaf = (struct huffnode*)malloc(sizeof (struct huffnode));
+
+      (*leaf)->freq = freqTotal;
+      (*leaf)->val = -1;
+      (*leaf)->left = *left;
+      (*leaf)->right = *right;  
+
+      }
+
+    if(freqTotal < (*leaf)->freq){
+      MakeLowestSubTree(&(*left), &(*right), (*leaf)->left);
+    }
+    else if(freqTotal > (*leaf)->freq){
+        MakeLowestSubTree(&(*left), &(*right), (*leaf)->right);
+    }
+   }
+
+#+END_SRC
+
+#+RESULTS: MakeLowestSubTree 
+
+#+NAME: Test
+#+BEGIN_SRC C :noweb yes
+  <<MakeLowestSubTree>>
+
+  void printout(struct huffnode * tree) {
+     if((*tree)->left) printout((*tree)->left);
+     printf("%d\n",tree->freq);
+     if((*tree)->right) printout((*tree)->right);
+  }
+
+  int main() {
+    struct huffnode * curr, * root, * left, * right;
+     int i;
+
+     root = 0;
+
+     for(i=1;i<=10;i++) {
+        curr = (struct huffnode *)malloc(sizeof(struct huffnode));
+        left = (struct huffnode *)malloc(sizeof(struct huffnode));
+        right = (struct huffnode *)malloc(sizeof(struct huffnode));
+        curr->left = curr->right = 0;
+        curr->freq = rand();
+        left->left = left->right = 0;
+        left->freq = rand();
+        right->left = right->right = 0;
+        right->freq = rand();
+
+        printf("%x, %d\n", &root, curr);
+     }
+
+     //printout(root);
+     return 0;
+  }
+
+#+END_SRC
+
+#+RESULTS: Test
+
