@@ -3,7 +3,6 @@ import nltk
 import re
 import pprint
 #print(conll2000.chunked_sents('train.txt')[99])
-nltk.config_megam("/usr/lib/python3.5/site-packages/nltk/classify/megam.py")
 class ConsecutiveNPChunkTagger(nltk.TaggerI): 
 
     def __init__(self, train_sents):
@@ -36,7 +35,7 @@ class ConsecutiveNPChunker(nltk.ChunkParserI):
     def parse(self, sentence):
         tagged_sents = self.tagger.tag(sentence)
         conlltags = [(w,t,c) for ((w,t),c) in tagged_sents]
-        return nltk.chunk.conlltags2tree(conlltags)
+        return nltk.chunk.util.conlltags2tree(conlltags)
 
 def npchunk_features(sentence, i, history):
     word, pos = sentence[i]
@@ -48,13 +47,28 @@ def npchunk_features(sentence, i, history):
         nextword, nextpos = "<END>", "<END>"
     else:
         nextword, nextpos = sentence[i+1]
+    # this stuff will get word and pos two words away
+    if i < len(sentence) - 2 :
+	nextnextword, nextnextpos = sentence[i+2]
+    else:
+        nextnextword, nextnextpos = "<END>", "<END>"
+							
     return {"pos": pos,
             "word": word,
             "prevpos": prevpos,
             "nextpos": nextpos, 
+	    "nextnextpos": nextnextpos,
             "prevpos+pos": "%s+%s" % (prevpos, pos),  
-            "pos+nextpos": "%s+%s" % (pos, nextpos),
-            "tags-since-dt": tags_since_dt(sentence, i)}
+	# Concats nextnextpos
+            "pos+nextpos+nextnextpos": "%s+%s+%s" % (pos, nextpos,nextnextpos),
+            "tags-since-dt": tags_since_dt(sentence, i),
+	#perhaps word length is an indicator of a np?
+ 	    "word_len": len(word),
+	    "len_prev_word": len(prevword),
+	#slightly increases recall
+	    "tags_after_curr_word": tags_since_currr_word(sentence, i)}
+	# This negatively affects percision
+	   # "len_next_next_word": len(nextnextword
 
 def tags_since_dt(sentence, i):
     tags = set()
@@ -65,9 +79,15 @@ def tags_since_dt(sentence, i):
             tags.add(pos)
     return '+'.join(sorted(tags))
 
+# This stores the tags that come after the current word
+def tags_after_curr_word(sentence, i):
+    tags = set()
+    for word, pos in sentence[i:]:
+	tags.add(pos)
+    return '+'.join(sorted(tags))
+
 test_sents = conll2000.chunked_sents('test.txt', chunk_types=['NP'])
 train_sents = conll2000.chunked_sents('train.txt', chunk_types=['NP'])
 chunker = ConsecutiveNPChunker(train_sents)
-print('hi')
+print(train_sents)
 print(chunker.evaluate(test_sents))
-
