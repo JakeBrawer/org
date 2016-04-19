@@ -66,7 +66,7 @@ def npchunk_features(sentence, i, history):
  	    "word_len": len(word),
 	    "len_prev_word": len(prevword),
 	#slightly increases recall
-	    "tags_after_curr_word": tags_since_currr_word(sentence, i)}
+	    "tags_after_curr_word": tags_after_curr_word(sentence, i)}
 	# This negatively affects percision
 	   # "len_next_next_word": len(nextnextword
 
