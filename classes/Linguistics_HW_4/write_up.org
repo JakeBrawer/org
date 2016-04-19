@@ -1,0 +1,16 @@
+#+OPTIONS: ':nil *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline author:t c:nil
+#+OPTIONS: creator:nil d:(not "LOGBOOK") date:t e:t email:nil f:t inline:t
+#+OPTIONS: num:t p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t timestamp:t
+#+OPTIONS: title:nil toc:nil todo:t |:t
+#+TITLE: Write Up
+#+DATE: <2016-04-18 Sat>
+#+AUTHOR:
+#+EMAIL: jake@test-arch
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+CREATOR: Emacs 24.5.1 (Org mode 8.3.4)
+* Problem 4 writeup
+
+** Problem 1
+
